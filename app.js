@@ -21,7 +21,7 @@ var methodOverride = require('method-override');
 var app = express();
 app.locals.appTitle = 'blog-express';
 
-// check global
+// check and init global
 app.use(function (req, res, next) {
   if (!collections.articles || !collections.users) return next(new Error("No collections"));
   req.collections = collections;
@@ -45,7 +45,23 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routers.index);
+app.get('/login', routers.user.login);
+app.post('/login', routers.user.authenticate);
+app.get('/logout', routers.user.logout);
+app.get('/admin', routers.article.admin);
+app.get('/post', routers.article.post);
+app.post('/post', routers.article.postArticle);
 app.get('/articles/:slug', routers.article.show);
+
+// REST API routes
+app.get('/api/articles', routers.article.list);
+app.post('/api/articles', routers.article.add);
+app.del('/api/articles/:id', routers.article.del);
+app.put('/api/articles/:id', routers.article.edit);
+
+app.all('*', function (req, res) {
+  res.send(404);
+})
 
 // http.createServer(app).listen(app.get('port'), function(){
   // console.log('Express server listening on port ' + app.get('port'));

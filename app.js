@@ -1,5 +1,8 @@
+var TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY
+var TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET
 var express = require('express');
 var routers = require('./routes');
+var conf = require('./conf');
 
 var http = require('http');
 var path = require('path');
@@ -11,12 +14,38 @@ var collections = {
   users:db.collection('users')
 };
 
+var everyauth = require('everyauth');
+
 var session = require('express-session');
 var logger = require('morgan');
 var errorHandler = require('errorhandler')
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var methodOverride = require('method-override');
+
+everyauth.debug = true;
+everyauth.twitter
+  .consumerKey(conf.twit.consumerKey)
+  .consumerSecret(conf.twit.consumerSecret)
+  .findOrCreateUser( function (session, accessToken, accessTokenSecret, twitterUserMetadata) {
+    var promise = this.Promise();
+    process.nextTick(function(){
+        if (twitterUserMetadata.screen_name === 'thanhtrungit25') {
+          session.user = twitterUserMetadata;
+          session.admin = true;
+        }
+        promise.fulfill(twitterUserMetadata);
+    })
+    return promise;
+    // return twitterUserMetadata
+  })
+  .redirectPath('/admin');
+
+everyauth.everymodule.handleLogout(routers.user.logout);
+
+everyauth.everymodule.findUserById( function (user, callback) {
+  callback(user);
+});
 
 var app = express();
 app.locals.appTitle = 'blog-express';
@@ -33,6 +62,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.use(cookieParser('3CCC4ACD-6ED1-4844-9217-82131BDCB239'));
 app.use(session({secret: '2C44774A-D649-4D44-9535-46E296EF984F'}));
+app.use(everyauth.middleware());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());

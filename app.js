@@ -2,17 +2,14 @@ var TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY
 var TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET
 var express = require('express');
 var routers = require('./routes');
+var models = require('./models');
 var conf = require('./conf');
 
 var http = require('http');
 var path = require('path');
-var mongoskin = require('mongoskin');
+var mongoose = require('mongoose');
 var dbUrl = process.env.MONGOHQ_URL || 'mongodb://@localhost:27017/blog';
-var db = mongoskin.db(dbUrl, {safe: true});
-var collections = {
-  articles: db.collection('articles'),
-  users:db.collection('users')
-};
+var db = mongoose.connect(dbUrl, {safe: true});
 
 var everyauth = require('everyauth');
 
@@ -52,8 +49,9 @@ app.locals.appTitle = 'blog-express';
 
 // Expose collections to request handlers
 app.use(function (req, res, next) {
-  if (!collections.articles || !collections.users) return next(new Error("No collections"));
-  req.collections = collections;
+  if (!models.Article || !models.User) return next(new Error("No collections"));
+  // req.collections = collections;
+  req.models = models;
   return next();
 })
 
@@ -94,7 +92,7 @@ app.get('/', routers.index);
 app.get('/login', routers.user.login);
 app.post('/login', routers.user.authenticate);
 app.get('/logout', routers.user.logout);
-app.get('/admin', authorize, routers.article.admin);
+app.get('/admin', routers.article.admin);
 app.get('/post', authorize, routers.article.post);
 app.post('/post', authorize, routers.article.postArticle);
 app.get('/articles/:slug', routers.article.show);

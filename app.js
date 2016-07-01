@@ -1,3 +1,4 @@
+console.log(process.env.NODE_ENV);
 var TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY
 var TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET
 var express = require('express');
@@ -22,8 +23,10 @@ var methodOverride = require('method-override');
 
 everyauth.debug = true;
 everyauth.twitter
-  .consumerKey(conf.twit.consumerKey)
-  .consumerSecret(conf.twit.consumerSecret)
+  // .consumerKey(conf.twit.consumerKey)
+  // .consumerSecret(conf.twit.consumerSecret)
+  .consumerKey(TWITTER_CONSUMER_KEY)
+  .consumerSecret(TWITTER_CONSUMER_SECRET)
   .findOrCreateUser( function (session, accessToken, accessTokenSecret, twitterUserMetadata) {
     var promise = this.Promise();
     process.nextTick(function(){

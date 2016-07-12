@@ -14,8 +14,8 @@ test:
 	tests/*.js
 	echo Ending test
 start:
-	TWITTER_CONSUMER_KEY=AAA \
-	TWITTER_CONSUMER_SECRET=BBB \
+	TWITTER_CONSUMER_KEY=87x94quo0Z6SKgGDNUg9Ji98i \
+	TWITTER_CONSUMER_SECRET=hFjqjSyRjVoMIG92bdFH4IDhOMiOOpiqRAagVPVGN1w7TRbwwe \
 	node  app
 
 .PHONY: test db start

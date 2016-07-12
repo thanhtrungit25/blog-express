@@ -1,4 +1,3 @@
-console.log(process.env.NODE_ENV);
 var TWITTER_CONSUMER_KEY = process.env.TWITTER_CONSUMER_KEY
 var TWITTER_CONSUMER_SECRET = process.env.TWITTER_CONSUMER_SECRET
 var express = require('express');
@@ -95,7 +94,7 @@ app.get('/', routers.index);
 app.get('/login', routers.user.login);
 app.post('/login', routers.user.authenticate);
 app.get('/logout', routers.user.logout);
-app.get('/admin', routers.article.admin);
+app.get('/admin', authorize, routers.article.admin);
 app.get('/post', authorize, routers.article.post);
 app.post('/post', authorize, routers.article.postArticle);
 app.get('/articles/:slug', routers.article.show);
@@ -114,7 +113,6 @@ app.all('*', function (req, res) {
 // http.createServer(app).listen(app.get('port'), function(){
   // console.log('Express server listening on port ' + app.get('port'));
 // });
-
 var server = http.createServer(app);
 var boot = function () {
   server.listen(app.get('port'), function(){
